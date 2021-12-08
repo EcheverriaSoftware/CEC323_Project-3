@@ -5,11 +5,11 @@ import java.util.*;
 import jakarta.persistence.*;
 
 import java.time.LocalTime;
-//Get PK
-//Set unique key
-//Create getters 
-//Create mapping
+
 @Entity(name = "Timeslot")
+@Table(uniqueConstraints={
+        @UniqueConstraint(columnNames={"daysOfWeek, startTime, endTime"})
+})
 public class TimeSlot {
     // bitmap
     private byte daysOfWeek;

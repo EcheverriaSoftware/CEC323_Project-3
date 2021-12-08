@@ -3,13 +3,9 @@ package model;
 import java.util.*;
 
 import jakarta.persistence.*;
-//Find PK
-//Implement the Prerequiste relationship
-//Needs constructors and setters/getters
-//Multi column unqiue restraint
-//Check the setters; only non-primary key fields require setter methods
-//Needs ID class 
-//Check mapping
+@Table(uniqueConstraints={
+        @UniqueConstraint(columnNames={"number, department_id"})
+})
 @Entity(name = "Course")
 public class Course {
     //Need to make multi-col unique key for number and department_id
@@ -32,21 +28,21 @@ public class Course {
     @JoinColumn(name = "department_id")
     private Department department;
 
-    @OneToMany(mappedBy = "prerequisite")
-    private Set<Prerequisite> prerequisites;
+    @OneToMany
+    @JoinColumn(name = "course_id")
+    private List<Prerequisite> prerequisites;
 
-    public Course(){
-
-    }
+    public Course(){}
 
     public Course(Department department, String number, String title, byte units)
     {
         this.department = department;
+        department.addCourse(this);
         this.number = number;
         this.title = title;
         this.units = units;
 
-        prerequisites = new HashSet<Prerequisite>();
+        this.prerequisites = new ArrayList<>();
     }
 
 
@@ -55,6 +51,11 @@ public class Course {
     }
     public void setDepartment(Department department) {
         this.department = department;
+    }
+    public void addDepartment(Department d)
+    {
+        this.department = d;
+        d.getCourses().add(this);
     }
 
     public String getNumber() { return number; }
@@ -66,8 +67,8 @@ public class Course {
     public byte getUnits() { return units; }
     public void setUnits(byte units) { this.units = units; }
 
-    public Set<Prerequisite> getPrerequisites() { return prerequisites; }
-    public void setPrerequisites(Set<Prerequisite> prerequisites) { this.prerequisites = prerequisites; }
+    public List<Prerequisite> getPrerequisites() { return prerequisites; }
+    public void setPrerequisites(List<Prerequisite> prerequisites) { this.prerequisites = prerequisites; }
     public void addPrerequisite(Prerequisite p)
     {
         this.prerequisites.add(p);

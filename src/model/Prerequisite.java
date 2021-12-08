@@ -12,11 +12,11 @@ public class Prerequisite {
     private char minimumGrade;
 
     @Id
-    @ManyToOne
-    @JoinColumn(name = "course_id")
     private Course prerequisite;
 
     @Id
+    @ManyToOne
+    @JoinColumn(name = "course_id")
     private Course precedes;
 
     public Prerequisite(){

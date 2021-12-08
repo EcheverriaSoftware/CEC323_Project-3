@@ -3,12 +3,9 @@ package model;
 import java.util.*;
 
 import jakarta.persistence.*;
-//Check PK
-//Check the setters; only non-primary key fields require setter methods
-//Needs helper methods for bidirectional associations
+
 @Entity(name = "Department")
-//@IdClass(value = departmentPk.class)
-//Check mapping
+
 public class Department {
     @Id
     @Column(name = "department_id")
@@ -22,14 +19,14 @@ public class Department {
     private String abbreviation;
     
     @OneToMany(mappedBy = "department")
-    private Set<Course> courses;
+    private List<Course> courses;
     
     public Department(){}
 
     public Department(String name, String abbreviation) {
         this.name = name;
         this.abbreviation = abbreviation;
-        courses = new HashSet<Course>();
+        courses = new ArrayList<Course>();
     }
 
     public int getDepartmentID() {
@@ -52,11 +49,11 @@ public class Department {
         this.abbreviation = abbreviation;
     }
 
-    public Set<Course> getCourses() {
+    public List<Course> getCourses() {
         return courses;
     }
 
-    public void setCourses(Set<Course> courses) {
+    public void setCourses(List<Course> courses) {
         this.courses = courses;
     }
 
@@ -66,13 +63,4 @@ public class Department {
         c.setDepartment(this);
     }
 
-    @Override
-    public String toString() {
-        return "Department{" +
-                "ID=" + departmentID +
-                ", name='" + name + '\'' +
-                ", abbreviation='" + abbreviation + '\'' +
-                ", courses=" + courses +
-                '}';
-    }
 }

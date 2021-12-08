@@ -26,7 +26,46 @@ public class Semester {
     @OneToMany(mappedBy = "semester")
     private List<Section> sections;
     
-    public Semester(){
+    public Semester(){}
 
+    public Semester(String title, LocalDate startDate) {
+        this.title = title;
+        this.startDate = startDate;
+
+        this.sections = new ArrayList<Section>();
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public LocalDate getStartDate() {
+        return startDate;
+    }
+
+    public void setStartDate(LocalDate startDate) {
+        this.startDate = startDate;
+    }
+
+    public int getSemesterID() {
+        return semesterID;
+    }
+
+    public List<Section> getSections() {
+        return sections;
+    }
+
+    public void setSections(List<Section> sections) {
+        this.sections = sections;
+    }
+
+    public void addSection(Section s)
+    {
+        this.sections.add(s);
+        s.setSemester(this);
     }
 }
