@@ -97,7 +97,9 @@ public class App {
             Student ben = new Student("Ben Stiller", 111111111);
 
             // To Do: Needs to be implemented
-            RegistrationResult rr = ben.registerForSection(requested);
+            //RegistrationResult rr = ben.registerForSection(requested);
+
+            System.out.println(ben.registerForSection(requested));
 
             // To Do: If successful, save to database
         }

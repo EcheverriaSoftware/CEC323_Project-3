@@ -5,7 +5,7 @@
     version="2.0">
     <persistence-unit-metadata>
         <persistence-unit-defaults>
-            <schema>PROJECT3</schema>
+            <schema>Project3</schema>
         </persistence-unit-defaults>
     </persistence-unit-metadata>
 </entity-mappings>

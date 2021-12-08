@@ -23,6 +23,8 @@ public class Student {
     @OneToMany(mappedBy = "student")
     private Set<Transcript> grades;
 
+    public enum RegistrationResult { SUCCESS, ALREADY_PASSED, ENROLLED_IN_SECTION, NO_PREREQUISITES, ENROLLED_IN_ANOTHER, TIME_CONFLICT };
+
     public Student(){
 
     }
@@ -108,4 +110,19 @@ public class Student {
 
         return total/count;
     }
+    
+    public RegistrationResult registerForSection(Section s){
+        /*
+        The student has already received a "C" or better in the course.
+        The student is already enrolled in the section.
+        The student has not met the course prerequisites.
+        The student is enrolled in a different section of that course.
+        The student is enrolled in another course section with a time conflict: the sections meet on the same day, with at least 1 minute of overlap in their start and end times.
+        */
+        if(s.getEnrolled().contains(this)){
+            return RegistrationResult.ENROLLED_IN_SECTION;
+        }
+        return RegistrationResult.SUCCESS;
+    }
+
 }
