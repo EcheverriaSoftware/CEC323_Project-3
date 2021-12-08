@@ -4,12 +4,10 @@ import jakarta.persistence.*;
 //Check PK
 //Needs helper methods for bidirectional associations
 //Check mapping for both semester and timeSlot
-@Entity(name = "Sections")
+@Entity(name = "Section")
 public class Section {
-    @Id
     private int sectionNumber;
     
-    @Id
     private int maxCapacity;
 
     @Id

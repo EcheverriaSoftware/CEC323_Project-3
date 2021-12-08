@@ -11,9 +11,8 @@ import jakarta.persistence.*;
 //Create setters for non-pks 
 //Needs helper methods for bidirectional associations
 //Check mapping
-@Entity(name = "Semesters")
+@Entity(name = "Semester")
 public class Semester {
-    @Id
     @Column(length = 16)
     private String title;
     

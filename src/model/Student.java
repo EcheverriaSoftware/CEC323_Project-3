@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 
 //Check PK
 //Implement relationship
-@Entity(name = "Students")
+@Entity(name = "Student")
 public class Student {
     @Id
     @Column(name = "student_id")
