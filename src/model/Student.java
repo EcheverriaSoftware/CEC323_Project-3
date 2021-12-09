@@ -111,7 +111,8 @@ public class Student {
         return total/count;
     }
     
-    public RegistrationResult registerForSection(Section s){
+    public RegistrationResult registerForSection(Section s)
+    {
         /*
         The student has already received a "C" or better in the course.
         The student is already enrolled in the section. <---
@@ -119,25 +120,110 @@ public class Student {
         The student is enrolled in a different section of that course.
         The student is enrolled in another course section with a time conflict: the sections meet on the same day, with at least 1 minute of overlap in their start and end times.
         */
+        Course inputCourse = s.getCourse();
 
-        //The student is already enrolled in the section.
+        // ALREADY_PASSED LOGIC
+        for(Transcript t : this.grades){
+            Course tranCourse = t.getSection().getCourse();
+
+            if (inputCourse.equals(tranCourse))
+            {
+                String grade = t.getGradeEarned();
+
+                switch (grade)
+                {
+                    case "A":
+                    case "B":
+                    case "C":
+                        return RegistrationResult.ALREADY_PASSED;
+                    default:
+                        break;
+                }
+            }
+        }
+
+        // ENROLLED_IN_SECTION LOGIC
         if(s.getEnrolled().contains(this)){
             return RegistrationResult.ENROLLED_IN_SECTION;
         }
 
-        // Iterate through transcript
-        for (Transcript t : this.getGrades())
+        // NO_PREREQUISITES LOGIC
+        List<Prerequisite> prerequisite = s.getCourse().getPrerequisites();
+        for (Prerequisite p : prerequisite)
         {
-            Course curr = t.getSection().getCourse();
-            String courseNum = curr.getNumber();
-        }
-        //The student is enrolled in a different section of that course.
-        for(Section sec : enrollment){
-            if((sec.getCourse().getDepartment().equals(s.getCourse().getDepartment()))&&(sec.getCourse().getNumber().equals(s.getCourse().getNumber()))){
-                return RegistrationResult.ENROLLED_IN_ANOTHER;
+            Course prereq = p.getPrerequisite();
+
+            boolean found = false;
+            for (Transcript t: this.grades)
+            {
+                Course tranCourse = t.getSection().getCourse();
+                if (tranCourse.equals(prereq))
+                {
+                    // Check for minimum grade
+                    boolean passed = courseIsPassed(t, p);
+                    if (!passed)
+                    {
+                        return RegistrationResult.NO_PREREQUISITES;
+                    }
+                    else
+                    {
+                        found = true;
+                    }
+                    break;
+                }
+            }
+
+            if (!found)
+            {
+                System.out.println("Does not have prereq: " + prereq.getTitle() + " " + prereq.getNumber());
+                return RegistrationResult.NO_PREREQUISITES;
             }
         }
-        return RegistrationResult.SUCCESS;
+
+        // ENROLLED_IN_ANOTHER AND TIME_CONFLICT LOGIC
+        for(Section sec : enrollment) {
+            Course enrolledCourse = sec.getCourse();
+            TimeSlot enrolledTime = sec.getTimeSlot();
+            TimeSlot inputTime = s.getTimeSlot();
+
+            if (enrolledCourse.equals(inputCourse)) {
+                return RegistrationResult.ENROLLED_IN_ANOTHER;
+            }
+
+            if (enrolledTime == inputTime)
+            {
+                return RegistrationResult.TIME_CONFLICT;
+            }
+        }
+            return RegistrationResult.SUCCESS;
     }
 
+    public boolean courseIsPassed(Transcript t, Prerequisite p)
+    {
+        int tGrade = gradeToInt(t.getGradeEarned());
+        int pGrade = gradeToInt(String.valueOf(p.getMinimumGrade()));
+
+        if (tGrade >= pGrade)
+        {
+            return true;
+        }
+        return false;
+    }
+
+    public int gradeToInt(String grade)
+    {
+        switch (grade)
+        {
+            case "A":
+                return 4;
+            case "B":
+                return 3;
+            case "C":
+                return 2;
+            case "D":
+                return 1;
+            default:
+                return 0;
+        }
+    }
 }

@@ -25,27 +25,25 @@ public class App {
         // Initializes Database to specifications
         initDB();
 
-        // Registration Application Logic goes here
+        // Student LookUp
         System.out.println("\nSearching Student Records");
         Scanner input = new Scanner(System.in);
         System.out.println("Please enter a student name:");
         String name = input.nextLine();
 
-        // A TypedQuery is strongly typed; a normal Query would not be.
-        TypedQuery<Student> namedStudent = em.createQuery("SELECT s FROM Student s WHERE s.name = ?1", Student.class);
-        namedStudent.setParameter(1, name);
-        try {
-            Student requested = namedStudent.getSingleResult();
-            Set<Transcript> gradeSet = requested.getGrades();
+        Student student = studentLookup(name);
+
+        // Courses and GPA output
+        if (student != null) {
+            Set<Transcript> gradeSet = student.getGrades();
 
             ArrayList<Transcript> grades = new ArrayList<Transcript>();
             grades.addAll(gradeSet);
 
             grades.sort(new TranscriptComp());
 
-            double GPA = requested.getGpa();
-            for (Transcript grade: grades)
-            {
+            double GPA = student.getGpa();
+            for (Transcript grade : grades) {
                 System.out.println(grade.getSection().getCourse().getDepartment().getAbbreviation() + " "
                         + grade.getSection().getCourse().getNumber() + ", "
                         + grade.getSection().getSemester().getTitle() + '.'
@@ -53,10 +51,8 @@ public class App {
             }
             System.out.println("Student's GPA: " + GPA);
         }
-        catch (NoResultException ex) {
-            System.out.println("Student with name '" + name + "' not found.");
-        }
 
+        // Registration Application Logic goes here
         System.out.println("\nRegistering for Classes");
         System.out.println("Please enter a semester (Spring 2021, Fall 2021, Spring 2022):");
         String sem = input.nextLine();
@@ -68,7 +64,7 @@ public class App {
             sem = input.nextLine();
         }
 
-        System.out.println("Please enter your name:");
+        System.out.println("Please enter a student's name:");
         name = input.nextLine();
 
         System.out.println("Please enter a course section in the format <CECS 277-05>:");
@@ -82,12 +78,6 @@ public class App {
             section = input.nextLine();
         }
 
-        for (String out : parsedInput)
-        {
-            System.out.println(out);
-        }
-        System.out.println(sem);
-
         // A TypedQuery is strongly typed; a normal Query would not be.
         TypedQuery<Section> registerSection = em.createQuery("SELECT s FROM Section s INNER JOIN s.course c " +
                 "INNER JOIN c.department d INNER JOIN s.semester ss " +
@@ -100,33 +90,50 @@ public class App {
         try {
             Section reqSection = registerSection.getSingleResult();
 
-            Student stu = new Student(name, 111111111);
+            Student stu = studentLookup(name);
 
-            // To Do: Needs to be implemented
-            //RegistrationResult rr = ben.registerForSection(requested);
+            if (stu != null) {
+                Student.RegistrationResult rr = stu.registerForSection(reqSection);
 
-            System.out.println(stu.registerForSection(reqSection));
+                // If successful, save to database
+                if (rr.equals(Student.RegistrationResult.SUCCESS))
+                {
+                    em.getTransaction().begin();
+                    reqSection.addEnrolled(stu);
+                    em.getTransaction().commit();
 
-            // To Do: If successful, save to database
+                    System.out.println("Currently Enrolled:");
+                    for (Section s : stu.getEnrollment())
+                    {
+                        System.out.println(s.toString());
+                    }
+                }
+                else
+                {
+                    System.out.println("Could not register for course: " + rr);
+                }
+            }
         }
         catch (NoResultException ex) {
             System.out.println("Section was not found");
         }
 
-        /*
-        Register for a course.
-        User chooses a semester, either by name or from a menu.
-        User enters the name of a student.
-                User enters the name of a course section, in the format
-        CECS 277-05
-
-        You must parse this string to find the department, course number, and section number.
-        Use JPQL to find the Section with the matching department abbreviation, course number, and section number.
-        Call registerForSection on the Student chosen by the user, passing the chosen Section. Print out the result of the operation.
-                If the registration succeeds, save the transaction to the database.
-
-         */
         em.close();
+    }
+
+    public static Student studentLookup(String name)
+    {
+        // A TypedQuery is strongly typed; a normal Query would not be.
+        TypedQuery<Student> namedStudent = em.createQuery("SELECT s FROM Student s WHERE s.name = ?1", Student.class);
+        namedStudent.setParameter(1, name);
+        try {
+            Student requested = namedStudent.getSingleResult();
+            return requested;
+        }
+        catch (NoResultException ex) {
+            System.out.println("Student with name '" + name + "' not found.");
+            return null;
+        }
     }
 
     public static ArrayList<String> parseSection(String sec)
@@ -269,43 +276,90 @@ public class App {
         em.persist(cecs282s7);
         em.persist(ital101As1);
 
+        em.getTransaction().commit();
+        em.getTransaction().begin();
+
         // Students
         Student naomi = new Student("Naomi Nagata", 123456789);
         naomi.addEnrollment(cecs282s5);
 
-        Student james = new Student("James Holden", 987654321);
-
-        Student amos = new Student("Amos Burton", 555555555);
-
-        Transcript naa = new Transcript(naomi, cecs174s1, "A");
-        Transcript nab = new Transcript(naomi, cecs274s1, "A");
-        Transcript nac = new Transcript(naomi, cecs277s3, "A");
-
-        Transcript jca = new Transcript(james, cecs174s1, "C");
-        Transcript jcb = new Transcript(james, cecs274s1, "C");
-        Transcript jcc = new Transcript(james, cecs277s3, "C");
-
-        Transcript aca = new Transcript(amos, cecs174s1, "C");
-        Transcript abb = new Transcript(amos, cecs274s1, "B");
-        Transcript adc = new Transcript(amos, cecs277s3, "D");
-
-        em.persist(naa);
-        em.persist(nab);
-        em.persist(nac);
-
         em.persist(naomi);
+        em.getTransaction().commit();
+        em.getTransaction().begin();
 
-        em.persist(jca);
-        em.persist(jcb);
-        em.persist(jcc);
+        Student james = new Student("James Holden", 987654321);
 
         em.persist(james);
 
-        em.persist(aca);
-        em.persist(abb);
-        em.persist(adc);
+        em.getTransaction().commit();
+        em.getTransaction().begin();
+
+        Student amos = new Student("Amos Burton", 555555555);
 
         em.persist(amos);
+
+        em.getTransaction().commit();
+        em.getTransaction().begin();
+
+        Transcript naa = new Transcript(naomi, cecs174s1, "A");
+
+        em.persist(naa);
+
+        em.getTransaction().commit();
+        em.getTransaction().begin();
+
+        Transcript nab = new Transcript(naomi, cecs274s1, "A");
+
+        em.persist(nab);
+
+        em.getTransaction().commit();
+        em.getTransaction().begin();
+
+        Transcript nac = new Transcript(naomi, cecs277s3, "A");
+
+        em.persist(nac);
+
+        em.getTransaction().commit();
+        em.getTransaction().begin();
+
+        Transcript jca = new Transcript(james, cecs174s1, "C");
+
+        em.persist(jca);
+
+        em.getTransaction().commit();
+        em.getTransaction().begin();
+
+        Transcript jcb = new Transcript(james, cecs274s1, "C");
+
+        em.persist(jcb);
+
+        em.getTransaction().commit();
+        em.getTransaction().begin();
+
+        Transcript jcc = new Transcript(james, cecs277s3, "C");
+
+        em.persist(jcc);
+
+        em.getTransaction().commit();
+        em.getTransaction().begin();
+
+        Transcript aca = new Transcript(amos, cecs174s1, "C");
+
+        em.persist(aca);
+
+        em.getTransaction().commit();
+        em.getTransaction().begin();
+
+        Transcript abb = new Transcript(amos, cecs274s1, "B");
+
+        em.persist(abb);
+
+        em.getTransaction().commit();
+        em.getTransaction().begin();
+
+        Transcript adc = new Transcript(amos, cecs277s3, "D");
+
+        em.persist(adc);
 
         em.getTransaction().commit();
     }

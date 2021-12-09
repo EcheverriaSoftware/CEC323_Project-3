@@ -139,4 +139,11 @@ public class Section {
         this.grades.add(t);
         t.setSection(this);
     }
+
+    @Override
+    public String toString() {
+        return
+                course.getDepartment().getAbbreviation() + " " + course.getNumber() +
+                "-" + sectionNumber;
+    }
 }
