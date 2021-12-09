@@ -190,7 +190,8 @@ public class Student {
                 return RegistrationResult.ENROLLED_IN_ANOTHER;
             }
 
-            if (enrolledTime == inputTime)
+            // If TimeSlots are the same or timeslots overlap
+            if (enrolledTime.equals(inputTime) || enrolledTime.overlap(inputTime))
             {
                 return RegistrationResult.TIME_CONFLICT;
             }

@@ -58,4 +58,37 @@ public class TimeSlot {
     public int getTimeSlotID() {
         return timeSlotID;
     }
+
+    public boolean overlap(TimeSlot inputTime)
+    {
+        // See if there is any intersection between bit flags
+        int intersection = this.daysOfWeek & inputTime.getDaysOfWeek();
+        if (intersection == 0)
+        {
+            return false;
+        }
+
+        // If the bitflag intersection is non-zero, see if the time overlaps at all
+
+        // |   1 |  |  2   |
+        // this starts before input ends AND ends after input starts
+        if (this.startTime.compareTo(inputTime.getEndTime()) < 0 && this.endTime.compareTo(inputTime.getStartTime()) > 0 )
+        {
+            return true;
+        }
+        // |   2 |  |  1   |
+        // input starts before this ends AND ends after this starts
+        else if (inputTime.getStartTime().compareTo(this.endTime) < 0 && inputTime.getEndTime().compareTo(this.startTime) > 0)
+        {
+            return true;
+        }
+        // |   12   |
+        // Start or stop at the same time
+        else if (inputTime.getStartTime().compareTo(this.startTime) == 0 || inputTime.getEndTime().compareTo(this.endTime) == 0)
+        {
+            return true;
+        }
+
+        return false;
+    }
 }
