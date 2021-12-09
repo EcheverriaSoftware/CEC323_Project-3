@@ -56,12 +56,12 @@ public class App {
         catch (NoResultException ex) {
             System.out.println("Student with name '" + name + "' not found.");
         }
-
         System.out.println("\nRegistering for Classes");
         System.out.println("Please enter a semester (Spring 2021, Fall 2021, Spring 2022):");
         String sem = input.nextLine();
 
-        while (sem != "Spring 2021" && sem != "Fall 2021" && sem != "Spring 2022")
+        //while (sem != "Spring 2021" && sem != "Fall 2021" && sem != "Spring 2022")
+        while (!sem.equals("Spring 2021") && !sem.equals("Fall 2021") && !sem.equals("Spring 2022"))
         {
             System.out.println("Incorrect input, please try again");
             System.out.println("Please enter a semester (Spring 2021, Fall 2021, Spring 2022):");

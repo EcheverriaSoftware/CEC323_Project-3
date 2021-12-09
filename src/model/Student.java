@@ -119,16 +119,30 @@ public class Student {
         The student is enrolled in a different section of that course.
         The student is enrolled in another course section with a time conflict: the sections meet on the same day, with at least 1 minute of overlap in their start and end times.
         */
+        //The student has already received a "C" or better in the course.
+        for(Transcript t : grades){
+            if(((t.getSection().getCourse().getDepartment().getName().equals(s.getCourse().getDepartment().getName())) && (t.getSection().getCourse().getNumber().equals(s.getCourse().getNumber())))){
+                if(!(t.getGradeEarned().equals("D")) || !(t.getGradeEarned().equals("F"))){
+                    return RegistrationResult.ALREADY_PASSED;
+                }
+            }
+        }
         //The student is already enrolled in the section.
         if(s.getEnrolled().contains(this)){
             return RegistrationResult.ENROLLED_IN_SECTION;
         }
         //The student is enrolled in a different section of that course.
         for(Section sec : enrollment){
-            if((sec.getCourse().getDepartment().equals(s.getCourse().getDepartment()))&&(sec.getCourse().getNumber().equals(s.getCourse().getNumber()))){
+            if((sec.getCourse().getDepartment().getName().equals(s.getCourse().getDepartment().getName()))&&(sec.getCourse().getNumber().equals(s.getCourse().getNumber()))){
                 return RegistrationResult.ENROLLED_IN_ANOTHER;
             }
         }
+        //The student is enrolled in another course section with a time conflict: the sections meet on the same day, with at least 1 minute of overlap in their start and end times.
+        /*for(Section sec : enrollment){
+            if(sec.getTimeSlot().getDaysOfWeek() == s.getTimeSlot().getDaysOfWeek()){
+                if()
+            }
+        }*/
         return RegistrationResult.SUCCESS;
     }
 
