@@ -119,8 +119,15 @@ public class Student {
         The student is enrolled in a different section of that course.
         The student is enrolled in another course section with a time conflict: the sections meet on the same day, with at least 1 minute of overlap in their start and end times.
         */
+        //The student is already enrolled in the section.
         if(s.getEnrolled().contains(this)){
             return RegistrationResult.ENROLLED_IN_SECTION;
+        }
+        //The student is enrolled in a different section of that course.
+        for(Section sec : enrollment){
+            if((sec.getCourse().getDepartment().equals(s.getCourse().getDepartment()))&&(sec.getCourse().getNumber().equals(s.getCourse().getNumber()))){
+                return RegistrationResult.ENROLLED_IN_ANOTHER;
+            }
         }
         return RegistrationResult.SUCCESS;
     }
