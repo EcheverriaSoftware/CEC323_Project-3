@@ -23,11 +23,10 @@ public class Prerequisite {
 
     }
 
-    public Prerequisite(Course prerequisite, char minimumGrade) {
+    public Prerequisite(Course prerequisite, Course precedes, char minimumGrade) {
         this.minimumGrade = minimumGrade;
         this.prerequisite = prerequisite;
-
-        precedes = new Course();
+        addPrecedes(precedes);
     }
 
     public char getMinimumGrade() {
@@ -52,5 +51,11 @@ public class Prerequisite {
 
     public void setPrecedes(Course precedes) {
         this.precedes = precedes;
+    }
+
+    public void addPrecedes(Course precedes)
+    {
+        this.precedes = precedes;
+        precedes.getPrerequisites().add(this);
     }
 }

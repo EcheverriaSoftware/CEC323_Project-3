@@ -61,7 +61,7 @@ public class App {
         System.out.println("Please enter a semester (Spring 2021, Fall 2021, Spring 2022):");
         String sem = input.nextLine();
 
-        while (sem != "Spring 2021" && sem != "Fall 2021" && sem != "Spring 2022")
+        while (!sem.equals("Spring 2021") && sem.equals("Fall 2021") && sem.equals("Spring 2022"))
         {
             System.out.println("Incorrect input, please try again");
             System.out.println("Please enter a semester (Spring 2021, Fall 2021, Spring 2022):");
@@ -82,24 +82,30 @@ public class App {
             section = input.nextLine();
         }
 
+        for (String out : parsedInput)
+        {
+            System.out.println(out);
+        }
+        System.out.println(sem);
+
         // A TypedQuery is strongly typed; a normal Query would not be.
-        TypedQuery<Section> registerSection = em.createQuery("SELECT s FROM Section s INNER JOIN Course c ON " +
-                "(s.course_id = c.course_id) INNER JOIN Department d ON (c.department_id = d.department_id) " +
-                "INNER JOIN Semester ss ON (ss.semester_id = s.semester_id) WHERE s.sectionNumber = ?1 AND c.number = 2? AND d.abbreviation = 3? AND ss.title = 4?", Section.class);
-        registerSection.setParameter(1, parsedInput.get(2));
+        TypedQuery<Section> registerSection = em.createQuery("SELECT s FROM Section s INNER JOIN s.course c " +
+                "INNER JOIN c.department d INNER JOIN s.semester ss " +
+                "WHERE s.sectionNumber = ?1 AND c.number = ?2 AND d.abbreviation = ?3 AND ss.title = ?4", Section.class);
+        registerSection.setParameter(1, (byte) Integer.parseInt(parsedInput.get(2)));
         registerSection.setParameter(2, parsedInput.get(1));
         registerSection.setParameter(3, parsedInput.get(0));
         registerSection.setParameter(4, sem);
 
         try {
-            Section requested = registerSection.getSingleResult();
+            Section reqSection = registerSection.getSingleResult();
 
-            Student ben = new Student("Ben Stiller", 111111111);
+            Student stu = new Student(name, 111111111);
 
             // To Do: Needs to be implemented
             //RegistrationResult rr = ben.registerForSection(requested);
 
-            System.out.println(ben.registerForSection(requested));
+            System.out.println(stu.registerForSection(reqSection));
 
             // To Do: If successful, save to database
         }
@@ -134,7 +140,26 @@ public class App {
 
         dep = sec.substring(0, space);
         num = sec.substring(space + 1, dash);
-        secNum = sec.substring(dash + 1);
+        String temp = sec.substring(dash + 1);
+
+        char charArr[] = temp.toCharArray();
+        int zeroLoc = -1;
+        for (int i = 0; i < charArr.length; i++)
+        {
+            if (charArr[i] != '0')
+            {
+                zeroLoc = i + dash + 1;
+            }
+        }
+
+        if (zeroLoc != -1)
+        {
+            secNum = sec.substring(zeroLoc);
+        }
+        else
+        {
+            secNum = temp;
+        }
 
         if (dep.length() < 1 || num.length() < 1  || secNum.length() < 1)
         {
@@ -173,29 +198,33 @@ public class App {
         em.getTransaction().commit();
         em.getTransaction().begin();
 
-        Prerequisite p174 = new Prerequisite(cecs174, 'C');
-        em.persist(p174);
-
         Course cecs274 = new Course(cecs, "274", "Data Structures", (byte) 3);
-        cecs274.addPrerequisite(p174);
         em.persist(cecs274);
-
-        Course cecs277 = new Course(cecs, "277", "Object Oriented Application Programming", (byte) 3);
-        cecs277.addPrerequisite(p174);
-        em.persist(cecs277);
+        Prerequisite p274 = new Prerequisite(cecs174, cecs274, 'C');
+        em.persist(p274);
 
         em.getTransaction().commit();
         em.getTransaction().begin();
 
-        Prerequisite p274 = new Prerequisite(cecs274, 'C');
-        em.persist(p274);
-
-        Prerequisite p277 = new Prerequisite(cecs277, 'C');
+        Course cecs277 = new Course(cecs, "277", "Object Oriented Application Programming", (byte) 3);
+        em.persist(cecs277);
+        Prerequisite p277 = new Prerequisite(cecs174, cecs277, 'C');
         em.persist(p277);
 
+        em.getTransaction().commit();
+        em.getTransaction().begin();
+
+
+        em.getTransaction().commit();
+        em.getTransaction().begin();
+
+
         Course cecs282 = new Course(cecs, "282", "Advanced C++", (byte) 3);
-        cecs282.addPrerequisite(p274);
-        cecs282.addPrerequisite(p277);
+        Prerequisite p282_1 = new Prerequisite(cecs274, cecs282, 'C');
+        em.persist(p282_1);
+
+        Prerequisite p282_2 = new Prerequisite(cecs277, cecs282, 'C');
+        em.persist(p282_2);
         em.persist(cecs282);
 
         em.getTransaction().commit();
@@ -204,11 +233,9 @@ public class App {
         Course ital101A = new Course(ital, "101A", "Fundamentals of Italian", (byte) 4);
         em.persist(ital101A);
 
-        Prerequisite p101A = new Prerequisite(ital101A, 'D');
-        em.persist(p101A);
-
         Course ital101B = new Course(ital, "101B", "Fundamentals of Italian", (byte) 4);
-        ital101B.addPrerequisite(p101A);
+        Prerequisite p101B = new Prerequisite(ital101A, ital101B, 'D');
+        em.persist(p101B);
         em.persist(ital101B);
 
         em.getTransaction().commit();

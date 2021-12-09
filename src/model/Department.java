@@ -12,10 +12,10 @@ public class Department {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int departmentID;
 
-    @Column(length = 128, unique = true)
+    @Column(length = 128)
     private String name;
     
-    @Column(length = 8, unique = true)
+    @Column(length = 8)
     private String abbreviation;
     
     @OneToMany(mappedBy = "department")

@@ -114,14 +114,22 @@ public class Student {
     public RegistrationResult registerForSection(Section s){
         /*
         The student has already received a "C" or better in the course.
-        The student is already enrolled in the section.
+        The student is already enrolled in the section. <---
         The student has not met the course prerequisites.
         The student is enrolled in a different section of that course.
         The student is enrolled in another course section with a time conflict: the sections meet on the same day, with at least 1 minute of overlap in their start and end times.
         */
+
         //The student is already enrolled in the section.
         if(s.getEnrolled().contains(this)){
             return RegistrationResult.ENROLLED_IN_SECTION;
+        }
+
+        // Iterate through transcript
+        for (Transcript t : this.getGrades())
+        {
+            Course curr = t.getSection().getCourse();
+            String courseNum = curr.getNumber();
         }
         //The student is enrolled in a different section of that course.
         for(Section sec : enrollment){
